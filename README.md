@@ -6,4 +6,4 @@ Made with Python 3.5.2
 Required modules:
 pyyaml
 pyirsdk
-
+tkinter
