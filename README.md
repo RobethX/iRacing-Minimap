@@ -4,6 +4,6 @@ A Python project that (in theory) adds a minimap to iRacing that shows important
 Made with Python 3.5.2
 
 Required modules:
-pyyaml
-pyirsdk
+	pyyaml
+	pyirsdk
 
