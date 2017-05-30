@@ -4,7 +4,8 @@ import logging
 import time
 import sys
 import threading
-from queue import *
+#from queue import *
+
 
 ### INITIALIZING VARIABLES
 carx = 0
@@ -15,14 +16,14 @@ caryvel = 0
 carzvel = 0
 
 debug = True
-#logging.basicConfig(level=logging.INFO)
-log = logging.getLogger(__name__)
-log.setLevel(logging.INFO)
-loghandler = logging.FileHandler('debug.log')
-loghandler.setLevel(logging.INFO)
-logformatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+#logging.basicConfig(filename="debug.log", level=logging.DEBUG)
+logger = logging.getLogger("iracing-minimap")
+loghandler = logging.FileHandler("debug.log")
+loghandler.setLevel(logging.DEBUG)
+logformatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 loghandler.setFormatter(logformatter)
-log.addHandler(loghandler)
+logger.addHandler(loghandler)
+logger.setLevel(logging.DEBUG)
 
 ir = irsdk.IRSDK()
 ir.startup()
@@ -34,6 +35,11 @@ root.protocol("WM_DELETE_WINDOW", sys.exit)
 root.geometry("350x500")
 #root.update() # initialize tkinter before the loop
 
+canvas = Canvas(root, width=350, height=500)
+canvas.pack()
+
+canvas.create_oval(50, 25, 51, 26, fill="black")
+
 class State:
 	ir_connected = False
 	last_car_setup_tick = -1
@@ -43,16 +49,16 @@ def check_iracing():
 		state.ir_connected = False
 		state.last_car_setup_tick = -1
 		ir.shutdown()
-		log.debug('IRSDK disconnected')
+		logger.debug("IRSDK disconnected")
 	elif not state.ir_connected and ir.startup() and ir.is_initialized and ir.is_connected:
 		state.ir_connected = True
-		log.debug('IRSDK connected')
+		logger.debug("IRSDK connected")
 
 q = Queue(maxsize=0)
 q.put(1)
 		
 def tk_loop():
-	#log.debug("Starting Tkinter mainloop")
+	#logger.info("Starting Tkinter mainloop")
 	root.update() # substitute for root.mainloop()
 	#root.mainloop()
 	# requeue
@@ -76,6 +82,7 @@ def irsdk_getdata():
 	
 irsdk_loop_enabled = True
 def irsdk_loop():
+	logger.info("Starting IRSDK loop")
 	while irsdk_loop_enabled:
 			check_iracing()
 			if state.ir_connected:
@@ -84,6 +91,7 @@ def irsdk_loop():
 	
 other_loop_enabled = True
 def other_loop():
+	logger.info("Starting other loop")
 	while other_loop:
 		#print("test")
 		carx = carx + carxvel
@@ -105,9 +113,9 @@ if __name__ == '__main__':
 		irsdk_thread.start()
 		other_thread.start()
 	except KeyboardInterrupt:
-		log.debug("Interrupted")
+		logger.info("Interrupted")
 		pass
 
+logger.info("Starting Tkinter mainloop")
 root.mainloop()
-#q.join()
 sys.exit()
